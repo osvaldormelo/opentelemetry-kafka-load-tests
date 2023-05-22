@@ -6,6 +6,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.LoggingLevel;
+import org.apache.camel.opentelemetry.OpenTelemetryTracer;
 
 public class ApiRouteBuilder extends RouteBuilder {
     protected String KAFKA_TOPIC = "{{quarkus.openshift.env.vars.kafka-topic}}";
@@ -13,7 +14,10 @@ public class ApiRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        // REST and Open API configuration
+        //init Opentelemetry
+        OpenTelemetryTracer ott = new OpenTelemetryTracer();
+        ott.init(this.getContext());
+        // REST and Open API configuration        
         restConfiguration().bindingMode(RestBindingMode.auto)
                 .component("platform-http")
                 .dataFormatProperty("prettyPrint", "true")
