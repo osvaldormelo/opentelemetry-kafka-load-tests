@@ -39,7 +39,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">camel-quarkus-kafka-api-producer-kafka.apps.cluster-dwrdx.dwrdx.sandbox1718.opentlc.com</stringProp>
+          <stringProp name="HTTPSampler.domain">camel-quarkus-kafka-api-producer-kafka.apps.cluster-cnfzm.cnfzm.sandbox857.opentlc.com</stringProp>
           <stringProp name="HTTPSampler.port">80</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>

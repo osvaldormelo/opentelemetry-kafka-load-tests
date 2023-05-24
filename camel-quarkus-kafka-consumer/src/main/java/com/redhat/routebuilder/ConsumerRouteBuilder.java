@@ -19,7 +19,7 @@ public class ConsumerRouteBuilder extends RouteBuilder {
         // Route that consumes message to kafka topic
         from("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS).routeId("consume")             
                
-                .log("message: " + "${body}");
+                .log(LoggingLevel.INFO, "message: " + "${body}");
     }     
 
 }
