@@ -157,6 +157,14 @@ Ajust the user count in User Group session of Test Plan and set the your produce
 
 Now click on run button, and check the metrics on grafana and jaeger to make a performance baseline and ajust your environment.
 
+In Grafana metrics, you can view the kafka cluster metrics like messages per second and monitoring consumer lag like bellow:
+
+![](images/GrafanaTest.png)
+
+On Jaeger, you can view the tracing and spans of each request and you check the time for produce and consuming messages:
+
+![](images/JaegerTest.png)
+
 ## K6 tests
 
 To be documented.
