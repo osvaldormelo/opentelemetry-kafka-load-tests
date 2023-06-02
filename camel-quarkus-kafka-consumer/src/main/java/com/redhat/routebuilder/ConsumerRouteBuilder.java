@@ -10,14 +10,14 @@ import org.apache.camel.opentelemetry.OpenTelemetryTracer;
 public class ConsumerRouteBuilder extends RouteBuilder {
     protected String KAFKA_TOPIC = "{{quarkus.openshift.env.vars.kafka-topic}}";
     protected String KAFKA_BOOTSTRAP_SERVERS = "{{quarkus.openshift.env.vars.kafka-bootstrap-servers}}";
-
+    protected String KAFKA_GROUP_ID = "{{quarkus.openshift.env.vars.kafka-group-id}}";
     @Override
     public void configure() throws Exception {
         //sets Opentelemetry
         OpenTelemetryTracer ott = new OpenTelemetryTracer();
         ott.init(this.getContext());
         // Route that consumes message to kafka topic
-        from("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS).routeId("consume")             
+        from("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS + "&groupId=" + KAFKA_GROUP_ID).routeId("consume")             
                
                 .log(LoggingLevel.INFO, "message: " + "${body}");
     }     

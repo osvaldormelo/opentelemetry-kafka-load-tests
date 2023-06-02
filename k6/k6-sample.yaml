@@ -1,0 +1,11 @@
+apiVersion: k6.io/v1alpha1
+kind: K6
+metadata:
+  name: k6-sample
+  namespace: k6-operator-system
+spec:
+  parallelism: 4
+  script:
+    configMap:
+      file: kafka-load-tests.js
+      name: k6-api-test

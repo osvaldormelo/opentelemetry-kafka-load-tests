@@ -167,7 +167,44 @@ On Jaeger, you can view the tracing and spans of each request and you check the 
 
 ## K6 tests
 
-To be documented.
+K6 is an open-source load testing tool designed for developers and focused on simplicity and scalability. It allows you to write and execute load tests using JavaScript, making it easy to define complex scenarios and simulate realistic user behavior. With K6, you can generate high levels of concurrent virtual users to stress test your system and measure its performance under different load conditions. It provides detailed metrics and real-time results, enabling you to identify bottlenecks, measure response times, and assess the scalability and stability of your application. K6's scripting capabilities, extensibility, and integration with other tools make it a popular choice for load testing in agile development and continuous integration workflows.
+
+To run tests using K6 in OCP, do you need install the following programs in your computer:
+
+* Go
+* Kustomize
+* Kubectl
+* Make
+
+After you need clone the K6 Operator repository with this commands:
+
+```bash
+git clone https://github.com/grafana/k6-operator && cd k6-operator
+```
+To deploy K6 Operator, you need run the following command:
+
+```bash
+make deploy
+```
+
+Now, we back to this repository folder and go create a configmap with our K6 test plan:
+
+```bash
+oc project k6-operator-system
+cd k6
+oc create configmap k6-api-test --from-file kafka-load-tests.js
+```
+
+Finally, we do create a k6 instance with this command:
+
+```bash
+oc apply -f k6-sample.yaml
+```
+You can follow the Test run with command "oc get pods" and observe, in this case 4 pods simultaneously running tests like bellow:
+
+![](images/K6Sample.png)
+
+Ajusts the test case for what your need and enjoy!
 
 ## Conclusions
 
