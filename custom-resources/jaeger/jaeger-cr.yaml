@@ -5,6 +5,22 @@ metadata:
   namespace: tracing-system
 spec:
   strategy: production
+  sampling:
+    options:
+      default_strategy:
+        param: 1
+        type: probabilistic
+      service_strategies:
+        - operation_strategies:
+            - operation: /produce
+              param: 0
+              type: probabilistic
+            - operation: produce
+              param: 0
+              type: probabilistic
+          param: 1
+          service: camel-quarkus-kafka-api-producer
+          type: probabilistic
   ingress:
     security: oauth-proxy
   storage:

@@ -1,0 +1,20 @@
+{
+  "default_strategy": {
+    "param": 1,
+    "type": "probabilistic"
+  },
+  "service_strategies": [
+    {
+      "service": "camel-quarkus-kafka-api-producer",
+      "type": "probabilistic",
+      "param": 1,
+      "operation_strategies": [
+        {
+          "operation": "/produce",
+          "type": "probabilistic",
+          "param": 0
+        }
+      ]
+    }
+  ]
+}

@@ -33,20 +33,26 @@ public class ApiRouteBuilder extends RouteBuilder {
                                 .apiProperty("cors", "true");
 
                 // REST methods configuration
-                rest().tag("API Demo using Camel and Quarkus")
+                rest("/produce").tag("API Demo using Camel and Quarkus")
                                 .produces("text/plain")
-                                .post("/produce")
+                                .post()
                                 .consumes("text/plain")
                                 .description("Send product to kafka")
-                                .route().routeId("postProductSend")
-                                .to("direct:sendToKafka")
-                                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(404))
-                                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
-                                .endRest();
+                                //.responseMessage().code(200).message("Dados enviados com sucesso para o tópico Kafka").endResponseMessage()
+                                
+                                .routeId("postProductSend")
+                                .to("direct:sendToKafka");
+                                //.setHeader(Exchange.HTTP_RESPONSE_CODE, constant(404))
+                                //.setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                        
                 // Route that sends message to kafka topic
                 from("direct:sendToKafka").routeId("sendToKafka")
                                 // .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
                                 .log(LoggingLevel.INFO, "request " + "${body}")
-                                .to("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS);
+                                .to("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS + 
+                              //  "&securityProtocol=SSL" +
+                              //  "&sslTruststoreLocation=classpath:/truststore.jks" +
+                              //  "&sslTruststorePassword=redhat" +
+                                "");
         }
 }

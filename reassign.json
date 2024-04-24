@@ -1,0 +1,36 @@
+{
+  "version":1,
+  "partitions":[
+    {"topic":"my-topic","partition":0,"replicas":[1,2,4]},
+    {"topic":"my-topic","partition":1,"replicas":[2,4,1]},
+    {"topic":"my-topic","partition":2,"replicas":[4,1,2]}
+  ]
+}
+{
+  "version":1,
+  "partitions":[
+    {"topic":"my-topic","partition":0,"replicas":[1,2,4]},
+    {"topic":"my-topic","partition":1,"replicas":[2,4,1]},
+    {"topic":"my-topic","partition":2,"replicas":[4,1,2]}
+  ],
+  "version":1,
+  "brokers":[
+    {"id":1,"host":"my-cluster-kafka-bootstrap.kafka.svc.cluster.local","port":9092},
+    {"id":2,"host":"my-cluster-kafka-bootstrap.kafka.svc.cluster.local","port":9092},
+    {"id":4,"host":"my-cluster-kafka-bootstrap.kafka.svc.cluster.local","port":9092}
+  ]
+}
+
+./kafka-reassign-partitions.sh --bootstrap-server my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092 --reassignment-json-file /tmp/reassign.json --execute
+
+./kafka-reassign-partitions.sh --bootstrap-server my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092 --reassignment-json-file /tmp/reassign.json --verify
+
+bin/kafka-topics.sh --create --topic Infra.Teste.ReplicationFactor --replica-assignment 0:1 --bootstrap-server=my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+
+bin/kafka-topics.sh --delete --topic Infra.Teste.ReplicationFactor --bootstrap-server=my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+
+bin/kafka-topics.sh --create --topic Infra.Teste.ReplicationFactor --replica-assignment 0:4 --bootstrap-server=my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+
+bin/kafka-topics.sh --delete --topic Infra.Teste.ReplicationFactor --bootstrap-server=my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+
+/opt/kafka/bin/zookeeper-shell.sh my-cluster-zookeeper-client.kafka.svc.cluster.local:2181
