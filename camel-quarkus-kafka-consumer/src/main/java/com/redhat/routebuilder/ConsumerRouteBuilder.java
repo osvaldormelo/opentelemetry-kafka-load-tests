@@ -11,15 +11,21 @@ public class ConsumerRouteBuilder extends RouteBuilder {
     protected String KAFKA_TOPIC = "{{quarkus.openshift.env.vars.kafka-topic}}";
     protected String KAFKA_BOOTSTRAP_SERVERS = "{{quarkus.openshift.env.vars.kafka-bootstrap-servers}}";
     protected String KAFKA_GROUP_ID = "{{quarkus.openshift.env.vars.kafka-group-id}}";
+
     @Override
     public void configure() throws Exception {
-        //sets Opentelemetry
+        // sets Opentelemetry
         OpenTelemetryTracer ott = new OpenTelemetryTracer();
         ott.init(this.getContext());
         // Route that consumes message to kafka topic
-        from("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS + "&groupId=" + KAFKA_GROUP_ID).routeId("consume")             
-               
+        from("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS + "&groupId=" + KAFKA_GROUP_ID +
+                "&securityProtocol=SASL_SSL" +
+                "&sslTruststoreLocation=/etc/security/truststore/truststore.jks" +
+                "&sslTruststorePassword=redhat" +
+                "&saslMechanism=SCRAM-SHA-512" +
+                "&saslJaasConfig=org.apache.kafka.common.security.scram.ScramLoginModule required username=\"redhat-user\" password=\"redhat123\";")
+                .routeId("consume")
                 .log(LoggingLevel.INFO, "message: " + "${body}");
-    }     
+    }
 
 }

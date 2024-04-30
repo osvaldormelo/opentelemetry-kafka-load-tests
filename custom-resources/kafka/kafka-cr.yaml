@@ -10,11 +10,13 @@ spec:
   kafka:
     config:
       default.replication.factor: 3
-      inter.broker.protocol.version: '3.4'
+      inter.broker.protocol.version: '3.6'
       min.insync.replicas: 2
       offsets.topic.replication.factor: 3
       transaction.state.log.min.isr: 2
       transaction.state.log.replication.factor: 3
+    authorization:
+      type: simple
     listeners:
       - name: plain
         port: 9092
@@ -24,6 +26,12 @@ spec:
         port: 9093
         tls: true
         type: internal
+      - name: external
+        port: 9094
+        type: route
+        tls: true
+        authentication:
+          type: scram-sha-512
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:
@@ -36,7 +44,7 @@ spec:
       deleteClaim: true
       size: 10Gi
       type: persistent-claim
-    version: 3.4.0
+    version: 3.6.0
   kafkaExporter:
     groupRegex: ".*"
     topicRegex: ".*"
