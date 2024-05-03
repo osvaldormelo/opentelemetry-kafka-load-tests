@@ -13,6 +13,17 @@ import io.opentelemetry.api.trace.Tracer;
 public class ApiRouteBuilder extends RouteBuilder {
         protected String KAFKA_TOPIC = "{{quarkus.openshift.env.vars.kafka-topic}}";
         protected String KAFKA_BOOTSTRAP_SERVERS = "{{quarkus.openshift.env.vars.kafka-bootstrap-servers}}";
+        protected String KAFKA_PRODUCER_COMPRESSION_CODEC = "{{quarkus.openshift.env.vars.kafka-producer-compression-codec}}";
+        protected String KAFKA_PRODUCER_REQUIRED_ACKS = "{{quarkus.openshift.env.vars.kafka-producer-required-acks}}";
+        protected String KAFKA_PRODUCER_BUFFER_MEMORY_SIZE = "{{quarkus.openshift.env.vars.kafka-producer-buffer-memory-size}}";
+        protected String KAFKA_PRODUCER_LINGER_MS = "{{quarkus.openshift.env.vars.kafka-producer-linger-ms}}";
+        protected String KAFKA_PRODUCER_BATCH_SIZE = "{{quarkus.openshift.env.vars.kafka-producer-batch-size}}";
+        protected String KAFKA_PRODUCER_SECURITY_PROTOCOL = "{{quarkus.openshift.env.vars.kafka-producer-security-protocol}}";
+        protected String KAFKA_PRODUCER_TRUSTSTORE_LOCATION = "{{quarkus.openshift.env.vars.kafka-producer-ssl-truststore-location}}";
+        protected String KAFKA_PRODUCER_TRUSTSTORE_PASSWORD = "{{quarkus.openshift.env.vars.kafka-producer-ssl-truststore-password}}";
+        protected String KAFKA_PRODUCER_SASL_MECHANISM = "{{quarkus.openshift.env.vars.kafka-producer-sasl-mechanism}}";
+        protected String KAFKA_PRODUCER_JAAS_CONFIG = "{{quarkus.openshift.env.vars.kafka-producer-sasl-jaas-config}}";
+
 
         @Override
         public void configure() throws Exception {
@@ -50,13 +61,16 @@ public class ApiRouteBuilder extends RouteBuilder {
                                 // .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
                                 .log(LoggingLevel.INFO, "request " + "${body}")
                                 .to("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS +
-                                                "&compressionCodec=lz4" +
-                                                "&requestRequiredAcks=0" +
-                                                "&securityProtocol=SASL_SSL" +
-                                                "&sslTruststoreLocation=/etc/security/truststore/truststore.jks" +
-                                                "&sslTruststorePassword=redhat" +
-                                                "&saslMechanism=SCRAM-SHA-512" +
-                                                "&saslJaasConfig=org.apache.kafka.common.security.scram.ScramLoginModule required username=\"redhat-user\" password=\"redhat123\";" +
+                                                "&compressionCodec=" + KAFKA_PRODUCER_COMPRESSION_CODEC +
+                                                "&requestRequiredAcks=" + KAFKA_PRODUCER_REQUIRED_ACKS +
+                                                "&bufferMemorySize=" + KAFKA_PRODUCER_BUFFER_MEMORY_SIZE +
+                                                "&lingerMs=" + KAFKA_PRODUCER_LINGER_MS +
+                                                "&producerBatchSize=" + KAFKA_PRODUCER_BATCH_SIZE +
+                                                "&securityProtocol=" + KAFKA_PRODUCER_SECURITY_PROTOCOL +
+                                                "&sslTruststoreLocation=" + KAFKA_PRODUCER_TRUSTSTORE_LOCATION +
+                                                "&sslTruststorePassword=" + KAFKA_PRODUCER_TRUSTSTORE_PASSWORD +                                               
+                                                "&saslMechanism=" + KAFKA_PRODUCER_SASL_MECHANISM +
+                                                "&saslJaasConfig=" + KAFKA_PRODUCER_JAAS_CONFIG +
                                                 "");
         }
 }
