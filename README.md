@@ -127,6 +127,27 @@ We should copy the content of the file [strimzi-kafka-exporter.json](custom-reso
 
 There you have it, the first dashboard is created. If you wish, you can repeat the process for the files [strimzi-kafka.json](custom-resources/grafana/strimzi-kafka.json) and [strimzi-zookeeper.json](custom-resources/grafana/strimzi-zookeeper.json).
 
+## Create Config Map with Kafka Thruststore
+
+```bash
+oc project kafka
+```
+
+```bash
+oc get secret kafka-cluster-cluster-ca-cert -n kafka -o jsonpath='{.data.ca\.crt}' | base64 -d > ca.crt
+```
+
+```bash
+keytool -import -file ca.crt -alias ca -keystore truststore.jks -storepass redhat -noprompt
+```
+```bash
+oc project camel
+```
+
+```bash
+oc create secret generic truststore-secret --from-file=truststore.jks
+```
+
 ## Deploy Camel-Quarkus Apps
 
 Now we will deploy the applications that will consume and produce messages for our load tests. In these applications, I used Camel Quarkus to simplify the implementation. I also used the Quarkus OpenTelemetry exporter OTLP and Quarkus OpenTelemetry components to send metrics to the Jaeger collector. You can check the versions of these components in the pom.xml file of each project. If you need to modify any configuration, you can do so in the application.properties files of the projects or in the environment variables of the deployment that will be created in Openshift in the following steps.

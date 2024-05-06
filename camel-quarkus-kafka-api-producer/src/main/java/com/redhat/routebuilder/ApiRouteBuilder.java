@@ -58,7 +58,7 @@ public class ApiRouteBuilder extends RouteBuilder {
 
                 // Route that sends message to kafka topic
                 from("direct:sendToKafka").routeId("sendToKafka")
-                                // .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
+                               //  .setHeader(KafkaConstants.KEY, constant("Camel")) // Key of the message
                                 .log(LoggingLevel.INFO, "request " + "${body}")
                                 .to("kafka:" + KAFKA_TOPIC + "?brokers=" + KAFKA_BOOTSTRAP_SERVERS +
                                                 "&compressionCodec=" + KAFKA_PRODUCER_COMPRESSION_CODEC +
