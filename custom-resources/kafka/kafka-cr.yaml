@@ -8,6 +8,13 @@ spec:
     topicOperator: {}
     userOperator: {}
   kafka:
+    resources:
+      limits:
+        cpu: '4'
+        memory: 8Gi
+      requests:
+        cpu: '2'
+        memory: 6Gi
     config:
       default.replication.factor: 3
       inter.broker.protocol.version: '3.6'
@@ -32,6 +39,15 @@ spec:
         tls: true
         authentication:
           type: scram-sha-512
+    jvmOptions:
+      '-XX':
+        InitiatingHeapOccupancyPercent: 45
+        MaxGCPauseMillis: 200
+        UseG1GC: true
+        UseStringDeduplication: true
+      '-Xms': 4g
+      '-Xmx': 4g
+      gcLoggingEnabled: true
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:
@@ -42,7 +58,7 @@ spec:
     storage:
       class: gp3-csi
       deleteClaim: true
-      size: 10Gi
+      size: 20Gi
       type: persistent-claim
     version: 3.6.0
   kafkaExporter:
@@ -58,5 +74,5 @@ spec:
     replicas: 3
     storage:
       class: gp3-csi
-      size: 5Gi
+      size: 10Gi
       type: persistent-claim

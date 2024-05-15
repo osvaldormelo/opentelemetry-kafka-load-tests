@@ -1,3 +1,4 @@
+
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -149,14 +150,6 @@ spec:
       annotations:
         summary: 'Container user-operator in Entity Operator pod down or in CrashLookBackOff status'
         description: 'Container user-operator in Entity Operator pod have been down or in CrashLookBackOff status for 3 minutes'
-    - alert: EntityOperatorTlsSidecarContainerDown
-      expr: absent(container_last_seen{container="tls-sidecar",pod=~".+-entity-operator-.+"})
-      for: 3m
-      labels:
-        severity: major
-      annotations:
-        summary: 'Container tls-sidecar Entity Operator pod down or in CrashLookBackOff status'
-        description: 'Container tls-sidecar in Entity Operator pod have been down or in CrashLookBackOff status for 3 minutes'
   - name: connect
     rules:
     - alert: ConnectContainersDown
@@ -246,10 +239,22 @@ spec:
         summary: 'Consumer group lag is too big'
         description: 'Consumer group {{ $labels.consumergroup}} lag is too big ({{ $value }}) on topic {{ $labels.topic }}/partition {{ $labels.partition }}'
     - alert: NoMessageForTooLong
-      expr: changes(kafka_topic_partition_current_offset{topic!="__consumer_offsets"}[10m]) == 0
+      expr: changes(kafka_topic_partition_current_offset[10m]) == 0
       for: 10s
       labels:
         severity: warning
       annotations:
         summary: 'No message for 10 minutes'
         description: 'There is no messages in topic {{ $labels.topic}}/partition {{ $labels.partition }} for 10 minutes'
+  - name: certificates
+    interval: 1m0s
+    rules:
+    - alert: CertificateExpiration
+      expr: |
+        strimzi_certificate_expiration_timestamp_ms/1000 - time() < 30 * 24 * 60 * 60
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Certificate will expire in less than 30 days'
+        description: 'Certificate of type {{ $labels.type }} in cluster {{ $labels.cluster }} in namespace {{ $labels.resource_namespace }} will expire in less than 30 days'
