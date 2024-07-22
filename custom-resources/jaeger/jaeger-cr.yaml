@@ -21,7 +21,7 @@ spec:
           param: 1
           service: camel-quarkus-kafka-api-producer
           type: probabilistic
-  ingress:
+    ingress:
     security: oauth-proxy
   storage:
     type: elasticsearch

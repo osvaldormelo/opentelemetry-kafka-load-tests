@@ -296,7 +296,7 @@ export default function () {
         }
      });
     const headers = { 'Content-Type': 'text/plain','Accept':'*/*' };
-    const res = http.post('http://camel-quarkus-kafka-api-producer-camel.apps.cluster-pz5k8.pz5k8.sandbox421.opentlc.com/produce', payload, { headers });
+    const res = http.post('http://camel-quarkus-kafka-api-producer-camel.apps.cluster-rccpv.rccpv.sandbox2416.opentlc.com/produce', payload, { headers });
 
     check(res, {
         'Post status is 200': (r) => res.status === 200

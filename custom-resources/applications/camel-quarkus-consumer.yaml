@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: camel-quarkus-kafka-consumer
+  namespace: camel
+  labels:
+    app.kubernetes.io/managed-by: quarkus
+    app.kubernetes.io/name: camel-quarkus-kafka-consumer
+    app.kubernetes.io/version: 1.0.0-SNAPSHOT
+    app.openshift.io/runtime: quarkus
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: camel-quarkus-kafka-consumer
+      app.kubernetes.io/version: 1.0.0-SNAPSHOT
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: quarkus
+        app.kubernetes.io/name: camel-quarkus-kafka-consumer
+        app.kubernetes.io/version: 1.0.0-SNAPSHOT
+        app.openshift.io/runtime: quarkus
+      annotations:
+        app.openshift.io/vcs-url: <<unknown>>
+        app.quarkus.io/build-timestamp: '2024-06-05 - 19:36:44 +0000'
+        app.quarkus.io/commit-id: b0044d61bbd496562fad7ae92402f2db6544d0c5
+    spec:
+      volumes:
+        - name: truststore-secret
+          secret:
+            secretName: truststore-secret
+            defaultMode: 420
+            optional: false
+      containers:
+        - name: camel-quarkus-kafka-consumer
+          image: 'quay.io/rhn_support_omelo/camel-quarkus-consumer:latest'
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: KAFKA_CONSUMER_SSL_TRUSTSTORE_LOCATION
+              value: /etc/security/truststore/truststore.jks
+            - name: KAFKA_CONSUMER_FETCH_WAIT_MAX_MS
+              value: '1'
+            - name: KAFKA_CONSUMER_FETCH_MAX_BYTES
+              value: '26214400'
+            - name: KAFKA_CONSUMER_SECURITY_PROTOCOL
+              value: SASL_SSL
+            - name: KAFKA_CONSUMER_MAX_POLL_RECORDS
+              value: '100000'
+            - name: KAFKA_GROUP_ID
+              value: camel-quarkus-kafka-consumer
+            - name: KAFKA_CONSUMER_AUTO_COMMIT_ENABLE
+              value: 'true'
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: 'kafka-cluster-kafka-bootstrap-kafka.apps.cluster-rccpv.rccpv.sandbox2416.opentlc.com:443'
+            - name: KAFKA_TOPIC
+              value: events
+            - name: KAFKA_CONSUMER_SASL_MECHANISM
+              value: SCRAM-SHA-512
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: 'true'
+            - name: KAFKA_CONSUMER_SSL_TRUSTSTORE_PASSWORD
+              value: redhat
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: 'http://jaeger-production-collector.tracing-system.svc.cluster.local:4317'
+            - name: KAFKA_CONSUMER_FETCH_MIN_BYTES
+              value: '1024'
+            - name: KAFKA_CONSUMER_SASL_JAAS_CONFIG
+              value: org.apache.kafka.common.security.scram.ScramLoginModule required username=redhat-user password=redhat123;
+            - name: JAVA_APP_JAR
+              value: /deployments/quarkus-run.jar
+          volumeMounts:
+            - name: truststore-secret
+              mountPath: /etc/security/truststore
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: camel-quarkus-kafka-consumer
+  namespace: camel
+  labels:
+    app.kubernetes.io/name: camel-quarkus-kafka-consumer
+spec:
+  selector:
+    app.kubernetes.io/name: camel-quarkus-kafka-consumer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

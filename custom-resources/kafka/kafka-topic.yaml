@@ -3,7 +3,23 @@ kind: KafkaTopic
 metadata:
   labels:
     strimzi.io/cluster: kafka-cluster
-  name: events
+  name: usuarios
+  namespace: kafka
+spec:
+  config:
+    retention.ms: 180000
+    segment.bytes: 1073741824
+    min.insync.replicas: 1 
+  partitions: 6
+  replicas: 1
+  topicName: events
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  labels:
+    strimzi.io/cluster: kafka-cluster
+  name: usuario-to-SAP
   namespace: kafka
 spec:
   config:
