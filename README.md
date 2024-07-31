@@ -15,14 +15,15 @@ On the other hand, if you're seeking a more comprehensive and flexible approach,
 This approach allows simulating the production and consumption behavior of data in an environment closer to the real-world usage scenario. You can create custom test cases, including specific interactions with other parts of the system, data manipulation, integrity validations, and other relevant aspects for your use case. That's why I chose this approach to demonstrate in this repository. The topics below will show how to deploy each tool so that we can eventually run the tests. To get started, you'll need a Red Hat OpenShift cluster and the following three namespaces:
 
 * kafka: for deploying Kafka and Kafka Exporter
-* tracing-plataform: for deploying Elasticsearch and Jaeger
+* tracing-system: for deploying Elasticsearch and Jaeger
 * camel-quarkus-apps: for deploying the producer and consumer applications
+* k6-operator-system: for do load testing using k6
   
 Let's Enjoy!
 
 ## Deploy the Open Telemetry
 
-Log on Openshift, select tracing-plataform project and from Operator Hub, install Elastisearch Operator:
+Log on Openshift, select tracing-system project and from Operator Hub, install Elastisearch Operator:
 
 ![](images/ElasticSearchOperator.png)
 
@@ -47,6 +48,23 @@ In Openshift Operator hub, install AMQ Streams Operator with default configurati
 
 ![](images/AMQStreamsOperator.png)
 
+You will need to open a terminal window and navigate to the folder where we mapped this repository, then to the custom resources folder, and finally to the kafka folder.
+
+Then, logged into the OpenShift command line, run the following commands:
+
+Create a secret by setting a password for the Kafka user
+
+```bash
+oc apply -f kafka-user-password.yaml
+```
+
+Next, create the Kafka metrics ConfigMap based on the [kafka-metrics-cm.yaml](custom-resources/kafka/kafka-metrics-cm.yaml) file using the following commands:
+
+```bash
+cd custom-resources/kafka
+oc apply -f kafka-metrics-cm.yaml
+```
+
 After, we need create a Kafka Cluster with Kafka Exporter Custom Resource, click on Installed Operators, click on AMQ Streams and in Kafka section, click on "Create Instance" 
 
 ![](images/KafkaInstance.png)
@@ -55,11 +73,11 @@ Change to Yaml view and apply a yaml file like this [kafka-cr.yaml](custom-resou
 
 ![](images/KafkaYaml.png)
 
-Next, create the Kafka metrics ConfigMap based on the [kafka-metrics-cm.yaml](custom-resources/kafka/kafka-metrics-cm.yaml) file using the following commands:
+
+After creating the Kafka cluster instance, create a user for authentication
 
 ```bash
-cd custom-resources/kafka
-oc apply -f kafka-metrics-cm.yaml
+oc apply -f kafka-user.yaml
 ```
 
 Now that we have a functional Kafka cluster, let's create the topic for use in our tests. To do this, go back to the 'Installed Operators' section of Openshift and click on the AMQ Streams Operator, then click on the 'Kafka Topic' section and click 'Create Instance'. Apply the YAML as shown below:
@@ -76,7 +94,7 @@ To install Prometheus, let's go back to the Openshift console and in the Operato
 
 ![](images/PrometheusOperator.png)
 
-After the operator is installed, we will open a terminal window and navigate to the folder where we mapped this repository, then to the custom resources folder, and finally to the kafka-exporter folder. Log on openshift via command line and we will apply the following commands:
+Now we need to navigate to the folder where we mapped this next repository, then to the custom resources folder, and finally to the kafka-exporter folder. Log on openshift via command line and we will apply the following commands:
 
 Create a strimzi pod monitor
 
@@ -197,22 +215,16 @@ To run tests using K6 in OCP, do you need install the following programs in your
 * Kubectl
 * Make
 
-After you need clone the K6 Operator repository with this commands:
-
-```bash
-git clone https://github.com/grafana/k6-operator && cd k6-operator
-```
-To deploy K6 Operator, you need run the following command:
-
-```bash
-make deploy
-```
-
-Now, we back to this repository folder and go create a configmap with our K6 test plan:
+After you need deploy K6 Operator, you need run the following command:
 
 ```bash
 oc project k6-operator-system
-cd k6
+curl https://raw.githubusercontent.com/grafana/k6-operator/main/bundle.yaml | oc apply -f
+```
+
+Now, create a configmap with our K6 test plan:
+
+```bash
 oc create configmap k6-api-test --from-file kafka-load-tests.js
 ```
 
