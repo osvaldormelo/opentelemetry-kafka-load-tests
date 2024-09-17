@@ -1,8 +1,8 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: kafka-cluster
-  namespace: kafka
+  name: <YOUR USER>-kafka-cluster
+  namespace: <YOUR USER>
 spec:
   entityOperator:
     topicOperator: {}

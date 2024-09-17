@@ -14,51 +14,38 @@ On the other hand, if you're seeking a more comprehensive and flexible approach,
 
 This approach allows simulating the production and consumption behavior of data in an environment closer to the real-world usage scenario. You can create custom test cases, including specific interactions with other parts of the system, data manipulation, integrity validations, and other relevant aspects for your use case. That's why I chose this approach to demonstrate in this repository. The topics below will show how to deploy each tool so that we can eventually run the tests. To get started, you'll need a Red Hat OpenShift cluster and the following three namespaces:
 
-* kafka: for deploying Kafka and Kafka Exporter
-* tracing-system: for deploying Elasticsearch and Jaeger
-* camel-quarkus-apps: for deploying the producer and consumer applications
+* userX: for deploying Kafka and Kafka Exporter and Apps
+* tracing-system: to Access Jaeger
 * k6-operator-system: for do load testing using k6
   
 Let's Enjoy!
 
 ## Deploy the Open Telemetry
 
-Log on Openshift, select tracing-system project and from Operator Hub, install Elastisearch Operator:
+Log on Openshift, select tracing-system project execute the command below:
 
-![](images/ElasticSearchOperator.png)
+```bash
+oc login <API URL> -u <YOUR USER> -p openshift
 
-Install it with default parameters, after Elastic Search Operator was successfully installed, from Operator Hub again, install Open Distributed Tracing Operator:
+oc get routes -n tracing-system
+```
 
-![](images/OpenDistributedTracingOperator.png)
-
-After OpenDistributed Tracing was successfully installed, you can see it on installed operators. Click on it and click in "create instance" like bellow:
-
-![](images/OpendistributedTracingInstance.png)
-
-Create a Jaeger Custom Resource with the parameters in file [jaeger-cr.yaml](custom-resources/jaeger/jaeger-cr.yaml) in folder custom-resources/jaeger like bellow:
-
-![](images/JaegerCR.png)
-
-After it's created, you can check if Jaeger is functioning by accessing the route created for it.
 
 ## Deploy Kafka Cluster and Kafka Exporter
 
-Now that we have a functional Jaeger, we will deploy our Kafka Cluster with the Kafka Exporter. Change target project to "kafka" project created previously.
-In Openshift Operator hub, install AMQ Streams Operator with default configuration like image below:
-
-![](images/AMQStreamsOperator.png)
+Now that we have a functional Jaeger, we will deploy our Kafka Cluster with the Kafka Exporter. Change target project to your project created previously.
 
 You will need to open a terminal window and navigate to the folder where we mapped this repository, then to the custom resources folder, and finally to the kafka folder.
 
 Then, logged into the OpenShift command line, run the following commands:
 
-Create a secret by setting a password for the Kafka user
+Alter the kafka-user-password.yaml file to match your namespace and create a secret by setting a password for the your Kafka user
 
 ```bash
 oc apply -f kafka-user-password.yaml
 ```
 
-Next, create the Kafka metrics ConfigMap based on the [kafka-metrics-cm.yaml](custom-resources/kafka/kafka-metrics-cm.yaml) file using the following commands:
+Next, Alter the kafka-metrics-cm.yaml file to match your namespace andcreate the Kafka metrics ConfigMap based on the [kafka-metrics-cm.yaml](custom-resources/kafka/kafka-metrics-cm.yaml) file using the following commands:
 
 ```bash
 cd custom-resources/kafka
@@ -73,12 +60,14 @@ Change to Yaml view and apply a yaml file like this [kafka-cr.yaml](custom-resou
 
 ![](images/KafkaYaml.png)
 
+Reminder: Don’t forget to modify the namespace in the YAML files to match your own namespace before applying.
 
 After creating the Kafka cluster instance, create a user for authentication
 
 ```bash
 oc apply -f kafka-user.yaml
 ```
+Reminder: Don’t forget to modify the namespace in the YAML files to match your own namespace before applying.
 
 Now that we have a functional Kafka cluster, let's create the topic for use in our tests. To do this, go back to the 'Installed Operators' section of Openshift and click on the AMQ Streams Operator, then click on the 'Kafka Topic' section and click 'Create Instance'. Apply the YAML as shown below:
 
@@ -96,7 +85,7 @@ To install Prometheus, let's go back to the Openshift console and in the Operato
 
 Now we need to navigate to the folder where we mapped this next repository, then to the custom resources folder, and finally to the kafka-exporter folder. Log on openshift via command line and we will apply the following commands:
 
-Create a strimzi pod monitor
+Modify the namespace in the YAML files below to match your own namespace and create a strimzi pod monitor
 
 ```bash
 oc apply -f strimzi-pod-monitor.yaml
@@ -148,7 +137,7 @@ There you have it, the first dashboard is created. If you wish, you can repeat t
 ## Create Config Map with Kafka Thruststore
 
 ```bash
-oc project kafka
+oc project <YOUR PROJECT>
 ```
 
 ```bash
@@ -158,9 +147,6 @@ oc get secret kafka-cluster-cluster-ca-cert -n kafka -o jsonpath='{.data.ca\.crt
 ```bash
 keytool -import -file ca.crt -alias ca -keystore truststore.jks -storepass redhat -noprompt
 ```
-```bash
-oc project camel
-```
 
 ```bash
 oc create secret generic truststore-secret --from-file=truststore.jks
@@ -169,58 +155,29 @@ oc create secret generic truststore-secret --from-file=truststore.jks
 ## Deploy Camel-Quarkus Apps
 
 Now we will deploy the applications that will consume and produce messages for our load tests. In these applications, I used Camel Quarkus to simplify the implementation. I also used the Quarkus OpenTelemetry exporter OTLP and Quarkus OpenTelemetry components to send metrics to the Jaeger collector. You can check the versions of these components in the pom.xml file of each project. If you need to modify any configuration, you can do so in the application.properties files of the projects or in the environment variables of the deployment that will be created in Openshift in the following steps.
+
+Reminder: Don’t forget to modify the namespace in the YAML files to match your own namespace and your values before applying.
+
 Deploy the producer:
 
 ```bash
-cd camel-quarkus-kafka-api-producer
-./mvnw clean package -Dquarkus.kubernetes.deploy=true
+cd applications
+oc apply -f camel-quarkus-api-producer.yaml 
 ```
 
 Deploy the consumer:
 
 ```bash
-cd camel-quarkus-kafka-consumer
-./mvnw clean package -Dquarkus.kubernetes.deploy=true
+cd applications
+oc apply -f camel-quarkus-consumer.yaml 
 ```
 
 After deploy applications, note the route to your camel-quarkus kafka producer to pass to Jmeter or K6 in next steps.
-
-## Jmeter tests
-
-JMeter is an open-source performance testing tool developed by Apache. It is widely used for load testing, stress testing, and performance measurement of web applications, APIs, and various server types. JMeter allows users to simulate realistic user scenarios by sending HTTP requests, measuring response times, and analyzing server performance under different loads. It provides a user-friendly interface for creating test plans, configuring test scenarios, and generating detailed reports and graphs for performance analysis. JMeter supports various protocols such as HTTP, HTTPS, FTP, JDBC, SOAP, and many more, making it a versatile tool for performance testing in different domains.You can install jmeter with default config and run it with jmeter.sh file in bin folder.
-After open jmeter gui, click on "Open" button and select [Jmeter Test Plan.jmx](jmeter/Jmeter%20Test%20Plan.jmx) file like bellow:
-
-![](images/JmeterOpenFile.png)
-
-Ajust the user count in User Group session of Test Plan and set the your producer url in API request session in the same Test Plan.
-
-Now click on run button, and check the metrics on grafana and jaeger to make a performance baseline and ajust your environment.
-
-In Grafana metrics, you can view the kafka cluster metrics like messages per second and monitoring consumer lag like bellow:
-
-![](images/GrafanaTest.png)
-
-On Jaeger, you can view the tracing and spans of each request and you check the time for produce and consuming messages:
-
-![](images/JaegerTest.png)
 
 ## K6 tests
 
 K6 is an open-source load testing tool designed for developers and focused on simplicity and scalability. It allows you to write and execute load tests using JavaScript, making it easy to define complex scenarios and simulate realistic user behavior. With K6, you can generate high levels of concurrent virtual users to stress test your system and measure its performance under different load conditions. It provides detailed metrics and real-time results, enabling you to identify bottlenecks, measure response times, and assess the scalability and stability of your application. K6's scripting capabilities, extensibility, and integration with other tools make it a popular choice for load testing in agile development and continuous integration workflows.
 
-To run tests using K6 in OCP, do you need install the following programs in your computer:
-
-* Go
-* Kustomize
-* Kubectl
-* Make
-
-After you need deploy K6 Operator, you need run the following command:
-
-```bash
-oc project k6-operator-system
-curl https://raw.githubusercontent.com/grafana/k6-operator/main/bundle.yaml | oc apply -f
-```
 
 Now, create a configmap with our K6 test plan:
 

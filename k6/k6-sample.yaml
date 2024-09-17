@@ -1,7 +1,7 @@
 apiVersion: k6.io/v1alpha1
 kind: K6
 metadata:
-  name: k6-sample
+  name: k6-sample-user<SEU NUMERO>
   namespace: k6-operator-system
 spec:
   parallelism: 4

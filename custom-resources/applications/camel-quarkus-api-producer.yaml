@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: camel-quarkus-kafka-api-producer
-  namespace: camel
+  namespace: <YOUR USER>
   labels:
     app.kubernetes.io/managed-by: quarkus
     app.kubernetes.io/name: camel-quarkus-kafka-api-producer
@@ -94,7 +94,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: camel-quarkus-kafka-api-producer
-  namespace: camel
+  namespace: <YOUR USER>
   labels:
     app.kubernetes.io/name: camel-quarkus-kafka-api-producer
 spec:
@@ -111,7 +111,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: camel-quarkus-kafka-api-producer
-  namespace: camel
+  namespace: <YOUR USER>
 spec:
   to:
     kind: Service

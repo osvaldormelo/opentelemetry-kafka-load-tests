@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: camel-quarkus-kafka-consumer
-  namespace: camel
+  namespace: <YOUR USER>
   labels:
     app.kubernetes.io/managed-by: quarkus
     app.kubernetes.io/name: camel-quarkus-kafka-consumer
@@ -96,7 +96,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: camel-quarkus-kafka-consumer
-  namespace: camel
+  namespace: <YOUR USER>
   labels:
     app.kubernetes.io/name: camel-quarkus-kafka-consumer
 spec:
