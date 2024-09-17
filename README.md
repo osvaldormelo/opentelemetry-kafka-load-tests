@@ -93,12 +93,12 @@ oc apply -f strimzi-pod-monitor.yaml
 Create a rules for prometheus
 
 ```bash
-oc apply prometheus-rules.yaml 
+oc apply -f prometheus-rules.yaml 
 ```
 Create additional rules for prometheus
 
 ```bash
-oc apply - f prometheus-additional.yaml
+oc apply -f prometheus-additional.yaml
 ```
 Finally create a prometheus instance
 
@@ -114,7 +114,7 @@ To install Grafana, it's quite simple. We just need to apply the grafana.yaml fi
 
 ```bash
 cd custom-resources/grafana
-oc apply grafana.yaml 
+oc apply -f grafana.yaml 
 ```
 After grafana pods are running you need a create route for grafana service. And log on grafana with user 'admin' and 'admin' password. To setup a datasource, create in config and datasources like bellow:
 
