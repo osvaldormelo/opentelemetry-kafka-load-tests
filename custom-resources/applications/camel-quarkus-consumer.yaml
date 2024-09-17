@@ -46,7 +46,7 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
-            - name: KAFKA_CONSUMER_SSL_TRUSTSTORE_LOCATION
+            - name: KAFKA_CONSUMER_TRUSTSTORE_LOCATION
               value: /etc/security/truststore/truststore.jks
             - name: KAFKA_CONSUMER_FETCH_WAIT_MAX_MS
               value: '1'
@@ -68,13 +68,13 @@ spec:
               value: SCRAM-SHA-512
             - name: OTEL_EXPORTER_OTLP_INSECURE
               value: 'true'
-            - name: KAFKA_CONSUMER_SSL_TRUSTSTORE_PASSWORD
+            - name: KAFKA_CONSUMER_TRUSTSTORE_PASSWORD
               value: redhat
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: 'http://jaeger-production-collector.tracing-system.svc.cluster.local:4317'
             - name: KAFKA_CONSUMER_FETCH_MIN_BYTES
               value: '1024'
-            - name: KAFKA_CONSUMER_SASL_JAAS_CONFIG
+            - name: KAFKA_CONSUMER_JAAS_CONFIG
               value: org.apache.kafka.common.security.scram.ScramLoginModule required username=redhat-user password=redhat123;
             - name: JAVA_APP_JAR
               value: /deployments/quarkus-run.jar
