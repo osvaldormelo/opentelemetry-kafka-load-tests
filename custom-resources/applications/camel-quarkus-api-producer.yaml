@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: camel-quarkus-kafka-api-producer
-  namespace: camel
+  namespace: <YOUR USER>
   labels:
     app.kubernetes.io/managed-by: quarkus
     app.kubernetes.io/name: camel-quarkus-kafka-api-producer
@@ -68,11 +68,11 @@ spec:
               value: 'http://jaeger-production-collector.tracing-system.svc.cluster.local:4317'
             - name: KAFKA_PRODUCER_COMPRESSION_CODEC
               value: none
-            - name: KAFKA_PRODUCER_SASL_JAAS_CONFIG
+            - name: KAFKA_PRODUCER_JAAS_CONFIG
               value: org.apache.kafka.common.security.scram.ScramLoginModule required username=redhat-user password=redhat123;
-            - name: KAFKA_PRODUCER_SSL_TRUSTSTORE_LOCATION
+            - name: KAFKA_PRODUCER_TRUSTSTORE_LOCATION
               value: /etc/security/truststore/truststore.jks
-            - name: KAFKA_PRODUCER_SSL_TRUSTSTORE_PASSWORD
+            - name: KAFKA_PRODUCER_TRUSTSTORE_PASSWORD
               value: redhat
             - name: JAVA_APP_JAR
               value: /deployments/quarkus-run.jar
@@ -94,7 +94,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: camel-quarkus-kafka-api-producer
-  namespace: camel
+  namespace: <YOUR USER>
   labels:
     app.kubernetes.io/name: camel-quarkus-kafka-api-producer
 spec:
@@ -111,7 +111,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: camel-quarkus-kafka-api-producer
-  namespace: camel
+  namespace: <YOUR USER>
 spec:
   to:
     kind: Service
